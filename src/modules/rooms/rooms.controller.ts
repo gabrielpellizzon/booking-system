@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dtos/create-room.dto';
 import { UpdateRoomDto } from './dtos/update-room.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Room } from '@prisma/client';
+import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
 
 @ApiTags('Rooms')
 @ApiBearerAuth()
@@ -21,6 +23,7 @@ export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
   @Post('register')
+  @UseGuards(IsAdminGuard)
   registerRoom(@Body() createRoomDto: CreateRoomDto): Promise<Room> {
     return this.roomsService.registerRoom(createRoomDto);
   }
@@ -31,20 +34,22 @@ export class RoomsController {
   }
 
   @Get(':id')
-  findRoomByID(@Param('id', ParseIntPipe) id: string): Promise<Room> {
+  findRoomByID(@Param('id', ParseIntPipe) id: number): Promise<Room> {
     return this.roomsService.findRoomByID(+id);
   }
 
   @Patch(':id')
+  @UseGuards(IsAdminGuard)
   updateRoom(
-    @Param('id', ParseIntPipe) id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateRoomDto: UpdateRoomDto,
   ): Promise<Room> {
     return this.roomsService.updateRoom(+id, updateRoomDto);
   }
 
   @Delete(':id')
-  deleteRoom(@Param('id', ParseIntPipe) id: string): Promise<string> {
+  @UseGuards(IsAdminGuard)
+  deleteRoom(@Param('id', ParseIntPipe) id: number): Promise<string> {
     return this.roomsService.deleteRoom(+id);
   }
 }
