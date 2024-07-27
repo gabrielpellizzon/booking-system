@@ -13,6 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { LoginResponse, UserPayload } from './interfaces/users-login.interface';
 import { UpdateUsertDto } from './dtos/update-user.dto';
+import { UpdateAdminUser } from './dtos/update-admin-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -62,6 +63,7 @@ export class UsersService {
         sub: user.id,
         email: user.email,
         name: user.firstName,
+        isAdmin: user.isAdmin,
       };
 
       return {
@@ -98,6 +100,32 @@ export class UsersService {
 
       if (error.code === 'P2002') {
         throw new ConflictException('Email already registered');
+      }
+
+      throw new HttpException(error, 500);
+    }
+  }
+
+  async updateAdminUser(
+    id: number,
+    updateUserDto: UpdateAdminUser,
+  ): Promise<User> {
+    try {
+      await this.prisma.user.findUniqueOrThrow({
+        where: { id },
+      });
+
+      const updatedUser = await this.prisma.user.update({
+        where: { id },
+        data: {
+          ...updateUserDto,
+        },
+      });
+
+      return updatedUser;
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`User with id ${id} not found`);
       }
 
       throw new HttpException(error, 500);

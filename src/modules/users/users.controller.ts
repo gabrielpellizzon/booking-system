@@ -20,6 +20,8 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ExpressRequestWithUser } from './interfaces/express-request-with-user.interface';
 import { Public } from 'src/common/decorators/public.decorator';
 import { IsMineGuard } from 'src/common/guards/is-mine.guard';
+import { UpdateAdminUser } from './dtos/update-admin-user.dto';
+import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -51,6 +53,15 @@ export class UsersController {
     @Body() updateUserDto: UpdateUsertDto,
   ): Promise<User> {
     return this.usersService.updateUser(+id, updateUserDto);
+  }
+
+  @Patch('admin/:id')
+  @UseGuards(IsAdminGuard)
+  async updateAdminUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateAdminUserDto: UpdateAdminUser,
+  ): Promise<User> {
+    return this.usersService.updateAdminUser(+id, updateAdminUserDto);
   }
 
   @Delete(':id')
