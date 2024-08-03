@@ -51,6 +51,8 @@ export class UsersService {
         where: { email: loginUserDto.email },
       });
 
+      console.log(user);
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
