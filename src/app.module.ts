@@ -7,16 +7,23 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { RoomsModule } from './modules/rooms/rooms.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    UsersModule,
-    CoreModule,
+    ConfigModule.forRoot({
+      envFilePath: process.env.NODE_ENV
+        ? `.env.${process.env.NODE_ENV}`
+        : '.env',
+      isGlobal: true,
+    }),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '12h' },
     }),
+    UsersModule,
+    CoreModule,
     RoomsModule,
   ],
   controllers: [AppController],
